@@ -19,13 +19,13 @@ import java.util.logging.Logger;
  */
 public class FileReader {
 
-    private int numberOfDetailsLine;
+
 
     public static void main(String[] args) {
         readFile(new File("ServerLog.log"));
     }
 
-    private static void readFile(File logFile) {
+    public static boolean readFile(File logFile) {
         try {
             Scanner scanner = new Scanner(logFile);
             List<String> errorLine = new ArrayList<>();
@@ -36,7 +36,7 @@ public class FileReader {
             while (scanner.hasNext()) {
                 String line = scanner.nextLine();
                 int sessionNumber = Integer.parseInt(line.split(" ")[2].replace("[", "").replace("]", ""));
-                // sessionID.add(sessionNumber);
+
 
                 if (line.split("]")[1].trim().contains("ERROR:")) {
                     errorLine.add(line);
@@ -56,35 +56,37 @@ public class FileReader {
                 getReportDetails(errorLine, i, errorDetails);
 
                 int numberOfDetailsLine = 2;
-                if(errorSessionDetails.size()<3){
-                    numberOfDetailsLine = errorSessionDetails.size()-1;
+                if (errorSessionDetails.size() < 3) {
+                    numberOfDetailsLine = errorSessionDetails.size() - 1;
                 }
 
-                for (int j = numberOfDetailsLine; j >= 0 ; j--) {
+                for (int j = numberOfDetailsLine; j >= 0; j--) {
                     System.out.println(errorSessionDetails.get(j));
-                    report.write(errorSessionDetails.get(j)+"\n");
+                    report.write(errorSessionDetails.get(j) + "\n");
                 }
-                for (String e:
-                errorDetails) {
-                    if(errorSessionDetails.size()<3){
-                        e = e + " // There are only "+errorSessionDetails.size()+" messages before this error";
+                for (String e :
+                        errorDetails) {
+                    if (errorSessionDetails.size() < 3) {
+                        e = e + " // There are only " + errorSessionDetails.size() + " messages before this error";
                     }
-                    System.out.println(e+" -----");
-                    report.write(e+" -----"+"\n");
+                    System.out.println(e + " -----");
+                    report.write(e + " -----" + "\n");
                 }
             }
 
             report.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(FileReader.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            return false;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-
+        return true;
     }
 
     private static void getReportDetails(List<String> errorLine, Integer i, List<String> errorDetails) {
-        for (int j = errorLine.size() - 1; j >= 0 ; j--) {
+        for (int j = errorLine.size() - 1; j >= 0; j--) {
             String err = errorLine.get(j);
             if (i == Integer.parseInt(err.split(" ")[2].replace("[", "").replace("]", ""))) {
                 errorDetails.add(err);
